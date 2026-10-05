@@ -1,0 +1,3 @@
+import { getStore } from "@netlify/blobs";
+const json=(d,s=200)=>new Response(JSON.stringify(d),{status:s,headers:{"content-type":"application/json; charset=utf-8"}});
+export default async req=>{if(req.method!=="POST")return json({error:"Method not allowed"},405);let x;try{x=await req.json()}catch{return json({error:"Invalid JSON"},400)}if(!x.name||!x.contact||!x.message)return json({error:"Missing fields"},400);const s=getStore("yaoyu-inquiries");const all=await s.get("items",{type:"json"})||[];all.unshift({...x,id:crypto.randomUUID(),createdAt:new Date().toISOString()});await s.setJSON("items",all);return json({ok:true});};
